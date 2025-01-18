@@ -21,7 +21,6 @@ public class UsersManager {
         try (FileReader reader = new FileReader(PATH)) {
             return gson.fromJson(reader, Users.class);
         } catch (IOException e) {
-            e.printStackTrace();
             try {
                 File file = new File(PATH);
                 file.createNewFile();
@@ -30,10 +29,10 @@ public class UsersManager {
             }
         }
 
-        return new Users(Collections.emptyList());
+        return new Users(new ArrayList<>(Collections.emptyList()));
     }
 
-    public static void saveUser(User user, Users users){
+    public static void saveUser(User user, Users users) {
         try (FileWriter fileWriter = new FileWriter(PATH)) {
             Gson gson = new Gson();
             if (users == null) {
@@ -47,5 +46,29 @@ public class UsersManager {
         } catch (IOException e) {
             System.out.println("Ошибка при сохранении пользователя");
         }
+    }
+
+    public static boolean registerUser(String username, String password) {
+        Users users = loadUsers();
+        if (users == null) users = new Users(new ArrayList<>(Collections.emptyList()));
+        for (User user : users.getUsers()) {
+            if (user.getUsername().equals(username)) return false;
+        }
+        saveUser(new User(username, password), users);
+        return true;
+    }
+
+    public static User loginUser(String username, String password) {
+        Users users = loadUsers();
+        if (users == null) return null;
+
+        for (User user : users.getUsers()) {
+            if (user.getUsername().equals(username)) {
+                if (PasswordManager.isPasswordCorrect(password, user.getHashedPassword())) {
+                    return user;
+                }
+            }
+        }
+        return null;
     }
 }

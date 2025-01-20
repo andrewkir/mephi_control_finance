@@ -1,1 +1,1 @@
-{"wallets":[{"username":"test","expenses":{"test":[123,321],"asd":[111]}},{"username":"asd","expenses":{"asd":[123]}}]}
+{"wallets":[{"username":"test","currentAmount":1000,"income":{"_____default":[1000]}}]}

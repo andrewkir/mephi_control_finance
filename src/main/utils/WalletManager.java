@@ -14,6 +14,7 @@ import java.util.*;
 public class WalletManager {
     private static final String PATH = "wallets.json";
     public static final String DEFAULT_CATEGORY = "_____default";
+    public static final String TRANSFER_CATEGORY = "Переводы";
 
     private static Wallets loadWallets() {
         Gson gson = new Gson();
@@ -34,8 +35,16 @@ public class WalletManager {
         return new Wallets(new ArrayList<>(Collections.emptyList()));
     }
 
+    public static int getBalance(User user) {
+        return getWallet(user).getCurrentAmount();
+    }
+
     public static void addExpense(User user, String category, int expense) {
         Wallet wallet = getWallet(user);
+        if (wallet.getCurrentAmount() - expense < 0) {
+            System.out.println("Недостаточно средств");
+            return;
+        }
 
         Map<String, List<Integer>> expenses = wallet.getExpenses();
         if (expenses == null) expenses = new HashMap<>();
@@ -47,6 +56,7 @@ public class WalletManager {
         expenses.put(category, categoryExpenses);
         wallet.setExpenses(expenses);
         wallet.setUsername(user.getUsername());
+        wallet.setCurrentAmount(wallet.getCurrentAmount() - expense);
 
         saveWallet(wallet);
         checkIfExceedBudget(user, category);
@@ -65,6 +75,7 @@ public class WalletManager {
         incomes.put(category, categoryIncome);
         wallet.setIncome(incomes);
         wallet.setUsername(user.getUsername());
+        wallet.setCurrentAmount(wallet.getCurrentAmount() + income);
 
         saveWallet(wallet);
     }

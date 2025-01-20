@@ -8,6 +8,7 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import static main.utils.WalletManager.DEFAULT_CATEGORY;
+import static main.utils.WalletManager.TRANSFER_CATEGORY;
 
 public class Main {
     public static void main(String[] args) {
@@ -113,37 +114,50 @@ public class Main {
 
         while (true) {
             System.out.println("Доступные команды");
-            System.out.println("1 - Список расходов");
-            System.out.println("2 - Список доходов");
-            System.out.println("3 - Добавить расход");
-            System.out.println("4 - Добавить доход");
-            System.out.println("5 - Добавить бюджет на расходы");
-            System.out.println("6 - Завершение работы");
+            System.out.println("1 - Текущий баланс");
+            ;
+            System.out.println("2 - Список расходов");
+            System.out.println("3 - Список доходов");
+            System.out.println("4 - Добавить расход");
+            System.out.println("5 - Добавить доход");
+            System.out.println("6 - Добавить бюджет на расходы");
+            System.out.println("7 - Перевести средства");
+            System.out.println("8 - Завершение работы");
 
             String next = scanner.nextLine();
             switch (next) {
                 case "1":
-                    handleExpensesList(user);
+                    handleBalance(user);
                     break;
                 case "2":
-                    handleIncomesList(user);
+                    handleExpensesList(user);
                     break;
                 case "3":
-                    handleAddExpense(user);
+                    handleIncomesList(user);
                     break;
                 case "4":
-                    handleAddIncome(user);
+                    handleAddExpense(user);
                     break;
                 case "5":
-                    addBudgetToCategory(user);
+                    handleAddIncome(user);
                     break;
                 case "6":
+                    addBudgetToCategory(user);
+                    break;
+                case "7":
+                    handleTransferMoney(user);
+                    break;
+                case "8":
                     return;
                 default:
                     System.out.println("Введите корректную команду");
                     break;
             }
         }
+    }
+
+    private static void handleBalance(User user) {
+        System.out.println("Текущий баланс - " + WalletManager.getBalance(user));
     }
 
     private static void handleExpensesList(User user) {
@@ -283,5 +297,53 @@ public class Main {
         }
 
         WalletManager.addBudget(user, category, amount);
+    }
+
+    private static void handleTransferMoney(User user) {
+        Scanner scanner = new Scanner(System.in);
+        String username;
+        while (true) {
+            System.out.println("Введите логин пользователя для перевода:");
+            username = scanner.nextLine();
+            if (username.isBlank()) {
+                System.out.println("Логин не может быть пустым");
+            } else {
+                break;
+            }
+        }
+        User otherUser = UsersManager.getUserByUsername(username);
+        if (otherUser == null) {
+            System.out.println("Пользователь не найден\n");
+            return;
+        }
+        if (otherUser.getUsername().equals(user.getUsername())) {
+            System.out.println("Нельзя перевести деньги самому себе\n");
+            return;
+        }
+
+        System.out.println("Введите сумму для перевода:");
+        int amount;
+        do {
+            try {
+                amount = scanner.nextInt();
+                if (amount <= 0) {
+                    System.out.println("Число не может быть <= 0");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Ошибка. Введите число");
+                scanner.nextLine();
+                amount = -1;
+            }
+        } while (amount <= 0);
+        scanner.nextLine();
+
+        if (amount > WalletManager.getBalance(user)) {
+            System.out.println("Недостаточно средств\n");
+            return;
+        }
+
+        WalletManager.addIncome(otherUser, TRANSFER_CATEGORY, amount);
+        WalletManager.addExpense(user, TRANSFER_CATEGORY, amount);
+        System.out.println("Успешно!\n");
     }
 }

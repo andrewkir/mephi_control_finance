@@ -6,13 +6,15 @@ import java.util.Map;
 public class Wallet {
 
     private String username;
+    private int currentAmount = 0;
     private Map<String, List<Integer>> expenses;
     private Map<String, List<Integer>> income;
     private Map<String, Integer> budget;
 
 
-    public Wallet(String username, Map<String, List<Integer>> expenses, Map<String, List<Integer>> income, Map<String, Integer> budget) {
+    public Wallet(String username, int currentAmount, Map<String, List<Integer>> expenses, Map<String, List<Integer>> income, Map<String, Integer> budget) {
         this.username = username;
+        this.currentAmount = currentAmount;
         this.expenses = expenses;
         this.income = income;
         this.budget = budget;
@@ -50,5 +52,13 @@ public class Wallet {
 
     public void setBudget(Map<String, Integer> budget) {
         this.budget = budget;
+    }
+
+    public int getCurrentAmount() {
+        return currentAmount;
+    }
+
+    public void setCurrentAmount(int currentAmount) {
+        this.currentAmount = currentAmount;
     }
 }

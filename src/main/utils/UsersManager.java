@@ -71,4 +71,16 @@ public class UsersManager {
         }
         return null;
     }
+
+    public static User getUserByUsername(String username) {
+        Users users = loadUsers();
+        if (users == null) return null;
+
+        for (User user : users.getUsers()) {
+            if (user.getUsername().equals(username)) {
+                return user;
+            }
+        }
+        return null;
+    }
 }
